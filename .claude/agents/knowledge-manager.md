@@ -89,8 +89,8 @@ Task 도구로 호출된 경우:
 
 | 입력 유형 | 필수 도구 호출 | 절대 금지 |
 |----------|--------------|----------|
-| **Threads/Instagram URL** | `scrapling-crawl.py --mode dynamic` (1순위) → `scrapling-crawl.py --mode stealth` (2순위) → `playwright-cli` (3순위) → `mcp__playwright__*` (4순위) | WebFetch 사용 금지 |
-| 일반 웹 URL | `scrapling-crawl.py --mode dynamic` (1순위) → `playwright-cli` (3순위) → `WebFetch` (정적) → `mcp__playwright__*` | 추측 금지 |
+| **Threads/Instagram URL** | `playwright-cli open → snapshot` ⭐ **1순위** (scrapling은 첫 포스트만 반환) | MCP playwright 사용 금지, WebFetch 사용 금지 |
+| 일반 웹 URL | `scrapling-crawl.py --mode dynamic` (1순위) → `--mode stealth` (2순위) → `playwright-cli` (3순위) → `WebFetch` (정적) | 추측 금지 |
 | **PDF 파일 (작은)** | `Read` 직접 시도 (< 5MB, < 20p) | 실패 시 marker 변환 |
 | **PDF 파일 (큰)** | `/pdf` 스킬 권장 또는 `marker_single` | 직접 Read 금지 |
 | DOCX/XLSX/PPTX | `Read` 또는 해당 스킬 도구 | 없음 |
@@ -427,14 +427,16 @@ Research/[프로젝트명]/
 
 ## Social Media Auto-Detection (NEW!) ⭐
 
-**CRITICAL**: 다음 URL 패턴 감지 시 자동으로 scrapling-crawl.py 사용 (1순위, fallback: playwright-cli → MCP → hyperbrowser)
+**CRITICAL**: 다음 URL 패턴 감지 시 자동으로 **playwright-cli** 사용 (1순위, scrapling은 SNS에서 첫 포스트만 반환)
 
 | 플랫폼 | URL 패턴 | 처리 |
 |--------|----------|------|
-| Threads | `threads.net/@*` | → scrapling-crawl.py (1순위) + km-social-media.md |
-| Threads | `threads.net/t/*` | → scrapling-crawl.py (1순위) + km-social-media.md |
-| Instagram Post | `instagram.com/p/*` | → scrapling-crawl.py (1순위) + km-social-media.md |
-| Instagram Reel | `instagram.com/reel/*` | → scrapling-crawl.py (1순위) + km-social-media.md |
+| Threads | `threads.net/@*`, `threads.com/@*` | → **playwright-cli** (1순위) + km-social-media.md |
+| Threads | `threads.net/t/*` | → **playwright-cli** (1순위) + km-social-media.md |
+| Instagram Post | `instagram.com/p/*` | → **playwright-cli** (1순위) + km-social-media.md |
+| Instagram Reel | `instagram.com/reel/*` | → **playwright-cli** (1순위) + km-social-media.md |
+
+> ❌ SNS에서 Playwright MCP 사용 금지 — CLI만 사용합니다.
 
 상세 워크플로우는 `km-social-media.md` 참조.
 

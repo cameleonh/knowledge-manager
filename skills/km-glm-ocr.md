@@ -1,3 +1,8 @@
+---
+name: km-glm-ocr
+description: Use when needing GLM-4V OCR 스킬. CogAgent 기반 시각적 문서 이해 및 텍스트 추출 시 사용.
+---
+
 # GLM-OCR 스킬
 
 > Knowledge Manager의 고속 로컬 OCR 엔진. PaddleOCR-VL 대비 5.6배 빠른 속도.
