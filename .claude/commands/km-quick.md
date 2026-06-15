@@ -24,7 +24,7 @@ allowedTools: Read, Write, Bash, Glob, Grep, mcp__obsidian__*, mcp__playwright__
 |----------|----------|------|
 | **일반 텍스트** | URL 패턴 없음 | frontmatter 추가 후 바로 저장 |
 | **일반 URL** | `http(s)://` + 정적 사이트 | WebFetch로 추출 |
-| **소셜 URL** | `threads.net`, `instagram.com` | Playwright로 스크래핑 |
+| **소셜 URL** | `threads.net`, `instagram.com` | Playwright(본문) · **Instagram 미디어는 instaloader** |
 | **YouTube** | `youtube.com`, `youtu.be` | WebFetch로 메타+설명 추출 |
 
 소셜 URL 감지 시 → `km-social-media.md` 스킬 참조 (Playwright 필수).
@@ -33,9 +33,9 @@ allowedTools: Read, Write, Bash, Glob, Grep, mcp__obsidian__*, mcp__playwright__
 
 ```
 URL 감지 시:
-├─ threads.net/* → mcp__playwright__browser_navigate → wait_for → snapshot → 본문 추출
-├─ instagram.com/* → 동일
-├─ youtube.com/* → WebFetch로 제목/설명/메타 추출
+├─ threads.net/*   → Playwright snapshot으로 본문 추출 (미디어 파일은 별도)
+├─ instagram.com/* → 본문은 Playwright, **미디어(이미지/릴스)는 instaloader로 원본 파일까지 수집** → km-social-media.md "Instagram 미디어" 절
+├─ youtube.com/*   → WebFetch로 제목/설명/메타 추출
 └─ 기타 URL → WebFetch로 본문 추출
 
 텍스트 입력 시:
@@ -112,7 +112,7 @@ type: atomic
 ❌ 교차 검증 없음
 ❌ 콘텐츠 분석/요약 없음 (원본 그대로)
 ❌ 연결 강화 없음
-❌ 이미지 추출 없음
+❌ 이미지 추출 없음 (단, **Instagram은 예외**: instaloader로 원본 이미지/릴스까지 수집)
 ❌ MOC/분할 없음
 ```
 
@@ -127,6 +127,9 @@ type: atomic
 /km-quick https://threads.net/@user/post/abc123
 → Playwright로 스크래핑 → Zettelkasten/인사이트/@user 포스트 - 2026-05-23.md
 
+/km-quick https://www.instagram.com/p/DZT2oPmzLjB/
+→ instaloader로 미디어 원본 수집 → Zettelkasten/인사이트/SNS-media/{author}-DZT2oPmzLjB.md (+ Resources/images/SNS/DZT2oPmzLjB/)
+
 /km-quick 오늘 회의에서 나온 아이디어: ...
 → Zettelkasten/인사이트/회의 아이디어 - 2026-05-23.md
 ```
@@ -135,6 +138,7 @@ type: atomic
 
 ## 참조
 
-- `km-social-media.md` — Threads/Instagram Playwright 스크래핑 상세
+- `km-social-media.md` — Threads/Instagram Playwright 스크래핑 + **Instagram 미디어(instaloader) 수집 절차**
+- `scripts/instagram-dl.py` — Instagram 미디어(이미지/릴스) + 노트 자동 생성 스크립트
 - `zettelkasten-note.md` — 노트 템플릿 규격
 - 전체 분석 필요 시 → `/knowledge-manager` 사용
