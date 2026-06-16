@@ -64,6 +64,7 @@ MCP is unstable with SNS dynamic loading and scroll control.
      --notes-dir  "<VAULT>/Zettelkasten/인사이트/SNS-media" \
      --delay 3 --retries 3
    ```
+   **dedup**: `Resources/images/SNS/{shortcode}/` 에 미디어가 이미 있으면 skip한다. 강제 재수집은 `--force`.
 3. 결과 (각 shortcode당)
    - 미디어: `{media-root}/{shortcode}/` 아래 원본 — 사진은 `.jpg`, 릴스는 `.mp4`. **캐러셀은 전체 슬라이드** 모두 저장.
    - 노트: `{notes-dir}/{author}-{shortcode}.md` — frontmatter(`likes`/`comments`/`author`/`post_date`/`shortcode`/`media_count`) + 캡션 원문 + `![[...]]` 이미지/비디오 임베드.

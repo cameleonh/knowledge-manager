@@ -40,9 +40,16 @@ def download_one(
     media_root: Path,
     notes_dir: Path,
     retries: int,
+    force: bool = False,
 ) -> dict:
-    """Download one post; return a result dict."""
+    """Download one post; return a result dict.
+
+    Dedup: if media for this shortcode already exists on disk, skip unless force.
+    """
     media_dir = media_root / shortcode
+    if not force and media_dir.exists() and any(p.is_file() for p in media_dir.iterdir()):
+        existing = sorted(p.name for p in media_dir.iterdir() if p.is_file())
+        return {"shortcode": shortcode, "ok": True, "skipped": True, "media": existing}
     media_dir.mkdir(parents=True, exist_ok=True)
     post = None
     last_err = None
@@ -128,6 +135,7 @@ def main() -> int:
     ap.add_argument("--notes-dir", default="Zettelkasten/인사이트/SNS-media")
     ap.add_argument("--delay", type=float, default=3.0)
     ap.add_argument("--retries", type=int, default=3)
+    ap.add_argument("--force", action="store_true", help="Re-download even if already saved (skip dedup)")
     args = ap.parse_args()
 
     media_root = Path(args.media_root)
@@ -147,9 +155,11 @@ def main() -> int:
     results = []
     for i, code in enumerate(codes, 1):
         print(f"[{i}/{len(codes)}] {code} ...", flush=True)
-        res = download_one(loader, code, media_root, notes_dir, args.retries)
+        res = download_one(loader, code, media_root, notes_dir, args.retries, args.force)
         results.append(res)
-        if res.get("ok"):
+        if res.get("skipped"):
+            print(f"  SKIP: already saved ({len(res['media'])} file(s))", flush=True)
+        elif res.get("ok"):
             print(f"  OK: {len(res['media'])} file(s) -> {res['note']}", flush=True)
         else:
             print(f"  FAIL: {res.get('error')}", flush=True)

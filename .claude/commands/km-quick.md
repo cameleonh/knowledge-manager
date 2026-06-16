@@ -101,6 +101,16 @@ type: atomic
 
 저장 후 경로만 사용자에게 보고.
 
+### 중복 처리 (dedup)
+
+이미 같은 콘텐츠가 vault에 있으면 **다시 받지 않고 skip** (idempotent — 같은 URL을 여러 번 줘도 안전).
+
+| 플랫폼 | 감지 조건 | 동작 |
+|--------|----------|------|
+| Instagram | `Resources/images/SNS/{shortcode}/` 에 미디어 파일 존재 | skip (강제 재수집: `instagram-dl.py --force`) |
+| Threads | 노트 `{author}-{shortcode}.md` 또는 미디어 폴더 존재 | skip (강제: 기존 삭제 후 재실행) |
+| 텍스트/일반 URL | 같은 `source` URL 노트 존재 | skip |
+
 ---
 
 ## 명시적으로 하지 않는 것
