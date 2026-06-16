@@ -80,3 +80,30 @@ MCP is unstable with SNS dynamic loading and scroll control.
 ### 대량/배치
 
 shortcode 여러 개를 한 번에 넘기면 순차 처리(게시물 간 delay). 1건당 약 3~6초. 전체 완료 후 `OK N/M` 요약과 실패 목록을 출력한다.
+
+---
+
+## Threads 게시물 수집 (비디오 + 본문 자동 분기)
+
+> Threads는 **비디오 / 이미지 / 텍스트(칼럼)** 게시물이 혼재한다. 플랫폼 감지 후 자동 분기한다.
+> Threads도 Meta CDN이라 별도 HTTP(curl/fetch)는 403 → **비디오는 전용 스크립트, 본문은 Playwright**로 수집.
+
+### 1. 비디오 게시물 — `download_threads_video.py`
+
+```bash
+python -B ~/.claude/skills/threads-video-downloader/scripts/download_threads_video.py "<THREADS_URL>" \
+  --output-dir "<VAULT>/Resources/images/SNS/<shortcode>" --overwrite
+```
+- public 게시물만. private/login-gated는 실패.
+- 비디오가 없는 게시물 → `error: No video_versions URL found` → 텍스트/이미지 케이스(아래)로 넘어간다.
+
+### 2. 텍스트 / 이미지 칼럼 — Playwright
+
+1. `browser_navigate(URL)` → `browser_evaluate`로 `[aria-label="칼럼 본문"]` region의 `innerText` 추출. 이게 원문 전체(페이지 분할 "1/2" 표시와 댓글까지 포함).
+2. 메타: region 텍스트 첫 줄 = username, "N일/시간" = 작성 시각, 숫자 = 좋아요.
+3. 이미지: 게시물이 `image_versions2`를 가지면 URL 캡처 — Instagram과 동일하게 reload 후 `page.on('response')`로 가로채기(브라우저만 200).
+4. 비디오가 있었으면 1번에서 받은 mp4를 노트에 임베드.
+
+### 노트
+
+`Zettelkasten/인사이트/SNS-media/{author}-{shortcode}.md` — Instagram과 동일 frontmatter(`platform: Threads`). Threads는 본문 자체가 콘텐츠이므로 **원문 전체를 그대로** 저장하고, 비디오/이미지가 있으면 임베드.
